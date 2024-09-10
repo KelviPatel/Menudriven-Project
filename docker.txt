@@ -1,0 +1,96 @@
+import os
+import subprocess
+
+def run_command(command):
+    """Execute a command in the terminal and print the output."""
+    try:
+        output = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        print(output.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred: {e.stderr}")
+
+def run_docker_container(image, command=""):
+    """Run a Docker container with the specified image and command."""
+    run_command(f'docker run -it {image} python -c "{command}"')
+
+def run_gui_in_docker(image, gui_app):
+    """Run a GUI application inside a Docker container."""
+    run_command(f"docker run -d --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix {image} {gui_app}")
+
+def run_ml_model_in_docker(dockerfile_path):
+    """Build and run a Docker container for a machine learning model."""
+    run_command(f"docker build -t ml_model {dockerfile_path}")
+    run_command(f"docker run -d ml_model")
+
+def run_docker_with_socket_binding():
+    """Run a CentOS container with access to host Docker through socket binding."""
+
+    # Run the container with the Docker socket from the host
+    run_command("docker run --privileged -v /var/run/docker.sock:/var/run/docker.sock -it --name centos_with_docker centos")
+
+    # Now, attach to the container's bash shell
+    run_command("docker exec -it centos_with_docker /bin/bash")
+
+def run_dind_with_centos():
+    """Run Docker inside Docker (DinD) with a CentOS image."""
+    run_command("docker run --privileged -it --name dind_centos docker:20.10.7-dind")
+    run_command("docker exec -it dind_centos /bin/bash")
+
+def launch_vlc_in_docker():
+    """Launch VLC Player inside a Docker container with an interactive terminal."""
+    run_command(f"docker run -d --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix jess/vlc vlc")
+
+
+def ssh_into_container(container_name):
+    """SSH into a running Docker container."""
+    run_command(f"docker exec -it {container_name} /bin/bash")
+
+def connect_to_webserver_from_host():
+    """Connect to a web server in Docker from the host system."""
+    run_command("docker run -d -p 2700:80 httpd")
+    print("Web server launched. Access it using http://localhost:2700:80")
+
+def menu():
+    """Display the menu and execute selected tasks."""
+    while True:
+        print("\n--- Docker Automation Menu ---")
+        print("1. Run a Python Program in a Docker Container")
+        print("2. Run a GUI Program in a Docker Container")
+        print("3. Run a Machine Learning Model in a Docker Container")
+        print("4. Run Docker Inside Docker (DinD) with CentOS Image")
+        print("5. Launch VLC Player Inside a Docker Container")
+        print("6. Launch Webserver in Docker Container")
+        print("7. SSH into a Running Docker Container")
+        print("8. Launch Webserver in Docker and Connect from Host")
+        print("9. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            image = input("Enter Docker image (e.g., python:3.8): ")
+            run_docker_container(image, "print('this is a command')")
+        elif choice == '2':
+            image = input("Enter Docker image with GUI support: ")
+            gui_app = input("Enter GUI application to run: ")
+            run_gui_in_docker(image, gui_app)
+        elif choice == '3':
+            dockerfile_path = input("Enter path to Dockerfile for ML model: ")
+            run_ml_model_in_docker(dockerfile_path)
+        elif choice == '4':
+            run_docker_with_socket_binding()
+        elif choice == '5':
+            launch_vlc_in_docker()
+        elif choice == '6':
+            launch_webserver_in_docker()
+        elif choice == '7':
+            container_name = input("Enter the name of the running container: ")
+            ssh_into_container(container_name)
+        elif choice == '8':
+            connect_to_webserver_from_host()
+        elif choice == '9':
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    menu()

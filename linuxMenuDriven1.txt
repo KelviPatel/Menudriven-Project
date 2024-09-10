@@ -1,0 +1,91 @@
+import subprocess
+import pyfiglet
+from googlesearch import search
+
+# 1. Change the color of files and folders in Linux
+def change_ls_colors():
+    ls_colors = "LS_COLORS='ow=01;90:di=01;90'"
+    subprocess.run(ls_colors, shell=True)
+    subprocess.run('export LS_COLORS', shell=True)
+    print("LS_COLORS updated! Now your folders and files will have custom colors.")
+
+# 2. Change the look and feel of GNOME Terminal
+def set_terminal_profile(setting, value):
+    profile_id = get_default_profile_id()
+    dconf_path = f"/org/gnome/terminal/legacy/profiles:/:{profile_id}/"
+    subprocess.run(["dconf", "write", dconf_path + setting, value])
+
+def get_default_profile_id():
+    result = subprocess.run(["gsettings", "get", "org.gnome.Terminal.ProfilesList", "default"],
+                            stdout=subprocess.PIPE, text=True)
+    return result.stdout.strip().strip("'")
+
+def change_gnome_terminal():
+    set_terminal_profile("foreground-color", "'#FFFFFF'")  # Set text color to white
+    set_terminal_profile("background-color", "'#000000'")  # Set background color to black
+    set_terminal_profile("use-system-font", "false")       # Disable system font usage
+    set_terminal_profile("font", "'Monospace 12'")         # Set a custom font
+    set_terminal_profile("background-transparency-percent", "15")  # Set transparency
+    set_terminal_profile("use-transparent-background", "true")  # Enable transparency
+    print("GNOME Terminal settings updated!")
+
+# 3. Google Search from terminal
+def google_search(query):
+    print(f"Searching for: {query}\n")
+    try:
+        for i, result in enumerate(search(query), start=1):
+            print(f"{i}. {result}")
+            if i >= 5:  # Limit to top 5 results
+                break
+    except Exception as e:
+        print(f"Error occurred: {e}")
+
+# 4. Convert text to ASCII art
+def print_ascii_art():
+    user_text = input("Enter the text you want to convert to ASCII art: ")
+    ascii_art = pyfiglet.figlet_format(user_text)
+    print(ascii_art)
+# 5. Create a user and set a password
+def create_user():
+    username = input("Enter the username for the new user: ")
+    password = input("Enter the password for the new user: ")
+    try:
+        subprocess.run(['sudo', 'useradd', '-m', '-s', '/bin/bash', username], check=True)
+        print(f"User '{username}' created successfully.")
+        subprocess.run(['sudo', 'chpasswd'], input=f"{username}:{password}".encode(), check=True)
+        print(f"Password set for user '{username}'.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e}")
+# Menu
+def menu():
+    while True:
+        print("\nMenu:")
+        print("1. Change color of files and folders (LS_COLORS)")
+        print("2. Change GNOME Terminal look and feel")
+        print("3. Perform a Google search from terminal")
+        print("4. Convert text to ASCII art")
+        print("5. Create a user and set a password")
+        print("6. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            change_ls_colors()
+        elif choice == '2':
+            change_gnome_terminal()
+        elif choice == '3':
+            query = input("Enter your search query: ")
+            google_search(query)
+        elif choice == '4':
+            print_ascii_art()
+        elif choice == '5':
+            create_user()
+        elif choice == '6':
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice, please try again.")
+
+# Run the menu
+if __name__ == "__main__":
+    menu()
