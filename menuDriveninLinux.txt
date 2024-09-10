@@ -1,0 +1,161 @@
+import os
+import pywhatkit as pyw
+from twilio.rest import Client
+import smtplib
+import schedule
+import time
+
+
+print("""
+      You can run these things:
+
+        Browser
+        Files
+        Whatsapp
+        sms/text
+        call
+        mail
+        google
+        sched
+
+""")
+
+flag = input("What do you want to do? \n ")
+
+
+if(("browser"in flag or "firefox" in flag) and not ("dont" in flag or "not" in flag)):
+
+    os.system("firefox")
+
+
+
+
+elif(("file manager"in flag or "files" in flag or "dolphin" in flag)and not ("dont" in flag or "not" in flag)):
+
+    os.system("dolphin")
+
+
+
+
+elif(("whatsdesk"in flag or "whatsapp" in flag)and not ("dont" in flag or "not" in flag)):
+
+    num = input("your number: ")
+    text = input("your text: ")
+
+    num = "+91" + num
+
+    pyw.sendwhatmsg_instantly(num, text)
+
+
+
+elif(("sms"in flag or "text" in flag)and not ("dont" in flag or "not" in flag)):
+
+
+
+    # Your Twilio Account SID and Auth Token
+    account_sid = 'AC39e89f6f14011004772d1b45a81ae48b'
+    auth_token = 'aa1892eed3181bd2ed1ef8671f71d80d'
+
+
+    # Function to send SMS message
+    def send_sms_message(to_number, message):
+        client = Client(account_sid, auth_token)
+        client.messages.create(body=message,
+                            from_='+16189964335',  # Your Twilio phone number
+                            to=to_number)
+
+
+    def main():
+        while True:
+
+
+            to_number = input("Enter SMS number or write 'exit' to exit: ")
+            to_number = "+91" + to_number
+
+            if(to_number == "+91exit"):
+
+                print("Exiting program...")
+                break
+
+            else:
+                message = input("Enter message to send: ")
+                send_sms_message(to_number, message)
+                print("SMS message sent successfully!")
+                break
+
+
+    main()
+
+
+elif(("call" in flag) and not ("dont" in flag or "not" in flag)):
+
+    # Your Twilio account SID and auth token
+    account_sid = 'AC39e89f6f14011004772d1b45a81ae48b'
+    auth_token = 'aa1892eed3181bd2ed1ef8671f71d80d'
+
+    number = input("Enter your number: ")
+    number = "+91" + number
+    # Initialize Twilio client
+    client = Client(account_sid, auth_token)
+
+    # Make a call
+    call = client.calls.create(
+        twiml='<Response><Say>hi kelvi how are you asdgrh dsdgg hgd hgfyt</Say></Response>',
+        to=number,  # Replace with the number you want to call
+        from_='+16189964335'  # Replace with your Twilio number
+    )
+
+    print("ring ring")
+elif(("mail" in flag or "email" in flag) and not ("dont" in flag or "not" in flag)):
+
+    s = smtplib.SMTP('smtp.gmail.com', 587)
+
+
+    msg = input("Enter your message: ")
+    sender = input("Enter your email: ")
+    reciever = input("Enter reciever email: ")
+
+    s.starttls()
+
+    s.login(sender, "karx davr defo qftj")
+
+    s.sendmail(sender, reciever, msg)
+
+    s.quit()
+
+
+elif(("search" in flag or "google" in flag) and not ("dont" in flag or "not" in flag)):
+
+    query = input("Enter your search: ")
+
+    for j in search(query, num = 5, stop = 5):
+        print(j)
+elif("sched" in flag):
+
+
+
+    def send_email( body, to_email):
+        # Email configuration
+        from_email = "patelkelvi23@gmail.com"
+        from_password = "rnmc csuc ozbm xzvr"
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+
+
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()  # Secure the connection
+        server.login(from_email, from_password)
+        server.sendmail(from_email, to_email, body)
+        server.quit()
+        print("Email sent to successfully!")
+
+    # Schedule email sending
+    body_t= input("Enter your message: ")
+    reciever = input("Enter reciever Email: ")
+    timeing = input("Enter your time: ")
+    schedule.every().day.at(timeing).do(send_email, body_t, reciever)
+
+    # Keep the script running to execute scheduled tasks
+    while True:
+        schedule.run_pending()
+        time.sleep(60)  # Sleep for 60 seconds before checking again
